@@ -1,2 +1,2 @@
 # PythonMirror
-Python smart Mirror
+Smart Mirror using pygame as an interface.
