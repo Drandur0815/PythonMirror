@@ -102,6 +102,15 @@ while True:
 	zaehler1 = 0    
 	wetter = []
 	tag = []
+	l = []
+	sortedtemp = []
+	color = (150,250,250)
+#	start_pos = (500,500)
+#	end_pos = (700,450)
+	origin = (500, 500)
+#	points = [(500, 500), (700, 400), (800, 450), (1000, 500)]
+	points = []
+	points.append(origin)
         forecast = get_forecast(api_key, location)
 	datumalt = forecast['list'][0]['dt_txt'].split(" ")[0]
         for date in forecast['list']:
@@ -116,6 +125,30 @@ while True:
 	    tag.append([Temperatur, Icon]) 
 	wetter.append(tag)
 	print(wetter)
+
+	for j in range(0, 5):
+	    leng = len(wetter[j])
+	    l.append(leng)
+	for h in range(0, l[0]):
+	    temp_sort = wetter[0][h][0]
+	    sortedtemp.append(float(temp_sort))
+	try:
+	    temp_sort = wetter[0+1][0][0]
+	    sortedtemp.append(float(temp_sort))
+	except Exception as _:
+	    pass
+	sortedtemp.sort()
+	temp_min = sortedtemp[0]
+	temp_max = sortedtemp[-1]
+	for i in range(0, l[0]):
+	    x_diag = origin[0]+(i+1)*100
+	    y_diag = origin[1]-((100/(temp_max-temp_min))*(wetter[0][i][0]-temp_min))
+	    punkt = (x_diag, y_diag)
+	    points.append(punkt)
+
+        #pygame.draw.line(background, color, start_pos, end_pos)
+	pygame.draw.lines(background, color, False, points)
+
         weather_timer = zeit + 60*10
         
     if zeit >= mail_timer:
