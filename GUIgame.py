@@ -84,18 +84,7 @@ while True:
             sys.exit()
     
     zeit = time.time()
-    zaehler1 = 0    
-    datum = ''
-    datumneu = ''
-    datumalt = ''
-    datum2 = ''
-    datum3 = ''
-    datum4 = ''
-    datum5 = ''
-    datum6 = ''
  
-    #init done, now main part
-    
     screen.blit(background, (0,0))
     #screen.fill((0,0,0))
     #pygame.display.update()
@@ -110,37 +99,24 @@ while True:
     #mein Versuch Text:
     
     if zeit >= weather_timer:
+	zaehler1 = 0    
+	wetter = []
+	tag = []
         forecast = get_forecast(api_key, location)
-	datum = forecast['list'][0]['dt_txt']
-	datum1 = forecast['list'][0]['dt_txt']
+	datumalt = forecast['list'][0]['dt_txt'].split(" ")[0]
         for date in forecast['list']:
             Temperatur = float(date['main']['temp'])
- 	    datumalt = datum
-            datum = date['dt_txt']
+	    Icon = 1
+            datum = date['dt_txt'].split(" ")[0]
 	    if datum != datumalt:
-		datumneu = datum
 		zaehler1 = zaehler1 + 1
-	    if zaehler1 <= 8:
-		datum2 = datumneu
-	    if zaehler1 > 8 and zaehler1 <=16:
-		datum3 = datumneu
-	    if zaehler1 > 16 and zaehler1 <=24:
-		datum4 = datumneu
-	    if zaehler1 > 24 and zaehler1 <=32:
-		datum5 = datumneu
-	    if zaehler1 > 32 and zaehler1 <=40:
-		datum6 = datumneu
-       	    #print(Temperatur)
-            #print(datum)
-	#print(datum)
-	print(datum1)
-	print(datum2)
-	print(datum3)	
-	print(datum4)	
-	print(datum5)	
-	print(datum6)	
-	#print(datumneu)
-        weather_timer = zeit + 60*60
+	    if zaehler1 == 1 or zaehler1 == 9 or zaehler1 == 17 or zaehler1 == 25 or zaehler1 == 33: 
+		wetter.append(tag)
+		tag = []
+	    tag.append([Temperatur, Icon]) 
+	wetter.append(tag)
+	print(wetter)
+        weather_timer = zeit + 60*10
         
     if zeit >= mail_timer:
         print('mail')
