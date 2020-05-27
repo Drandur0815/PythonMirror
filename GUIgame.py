@@ -58,6 +58,11 @@ font = pygame.font.Font('Roboto-Light.ttf',32)
 textX = 5
 textY = [0, 5, 55, 105]
 
+def show_times(x,y):
+    for i in range(0, len(uhrzeiten)):
+	uhrz = font.render(str(uhrzeiten[i]), True, (150,250,250))
+	screen.blit(uhrz, (x + i*100 - 10, y + 50))
+
 def show_messages(x,y):
     message = font.render("From : " + mess1Val, True, (150,250,250))
     screen.blit(message, (x, y+100))
@@ -70,9 +75,16 @@ def show_datetime(x,y):
     minute = font.render(" : " + minVal, True, (150,250,250))
     screen.blit(minute, (x+410, y))
 
+
 weather_timer = time.time()
 mail_timer = time.time()
 
+w, h = pygame.display.get_surface().get_size()
+background_surface = pygame.Surface((w,h))
+
+points = []
+uhrzeiten = []
+    
 while True:
     
     for event in pygame.event.get():
@@ -85,7 +97,7 @@ while True:
     
     zeit = time.time()
  
-    screen.blit(background, (0,0))
+    screen.blit(background_surface, (0,0))
     #screen.fill((0,0,0))
     #pygame.display.update()
     
@@ -97,7 +109,7 @@ while True:
     screen.blit(mouse, (x,y))
     
     #mein Versuch Text:
-    
+
     if zeit >= weather_timer:
 	zaehler1 = 0    
 	wetter = []
@@ -109,13 +121,18 @@ while True:
 #	end_pos = (700,450)
 	origin = (500, 500)
 #	points = [(500, 500), (700, 400), (800, 450), (1000, 500)]
-	points = []
-	points.append(origin)
+#	uhrzeiten = []
+	temps_u_graph = []
+#	points = []
+	x_for_Temps = []
+	y_for_Temps = origin[1]+100
+#	x_for_Temps.append(origin[0])
+#	points.append(origin)
         forecast = get_forecast(api_key, location)
 	datumalt = forecast['list'][0]['dt_txt'].split(" ")[0]
         for date in forecast['list']:
             Temperatur = float(date['main']['temp'])
-	    Icon = 1
+            Icon = str(date['weather'][0]['icon'])
             datum = date['dt_txt'].split(" ")[0]
 	    if datum != datumalt:
 		zaehler1 = zaehler1 + 1
@@ -140,16 +157,50 @@ while True:
 	sortedtemp.sort()
 	temp_min = sortedtemp[0]
 	temp_max = sortedtemp[-1]
+	print(temp_min)
+	print(temp_max)
 	for i in range(0, l[0]):
-	    x_diag = origin[0]+(i+1)*100
+	    x_diag = origin[0]+(i)*100
+#	    x_for_Temps.append(x_diag)
 	    y_diag = origin[1]-((100/(temp_max-temp_min))*(wetter[0][i][0]-temp_min))
 	    punkt = (x_diag, y_diag)
 	    points.append(punkt)
+	try:
+	    x_diag = x_diag + 100
+	    y_diag = origin[1]-((100/(temp_max-temp_min))*(wetter[0+1][0][0]-temp_min))
+	    punkt = (x_diag, y_diag)
+	    points.append(punkt)
+	except Exception as _:
+	    pass	
+
+	#UHRZEITEN:
+	current_tag = len(wetter[0])
+	uhrzeiten.append(0)
+	for i in range(0, current_tag):
+	    uhrzt = 21 - i * 3
+	    uhrzeiten.append(uhrzt)	
+	uhrzeiten.reverse()
+	print(uhrzeiten)
+
+#	show_times(origin[0], origin[1])
+
+	#TEMPERATUREN:
+	for i in range(0, l[0]):
+	    temps_u_graph.append(wetter[0][i][0])	
+	temps_u_graph.append(wetter[0+1][0][0])
+	print(temps_u_graph)
 
         #pygame.draw.line(background, color, start_pos, end_pos)
-	pygame.draw.lines(background, color, False, points)
+#	pygame.draw.lines(background, color, False, points)
+	
+#	print(x_for_Temps)	
 
         weather_timer = zeit + 60*10
+
+#    show_times(origin[0], origin[1])
+    if len(points) >= 2:
+        pygame.draw.lines(background_surface, color, False, points)
+    show_times(origin[0], origin[1])
         
     if zeit >= mail_timer:
         print('mail')
@@ -235,6 +286,8 @@ while True:
     timee = datetime.datetime.today()
     #print(timee.hour)
     hourValue = timee.hour
+    if hourValue <= 9:
+        hourValue = '0' + str(hourValue)
     #print(timee.minute)
     minuteValue = timee.minute
     if minuteValue == 1:
